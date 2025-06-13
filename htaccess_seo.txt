@@ -1,0 +1,137 @@
+# Ted Rubin Project Management - SEO Optimized .htaccess with Geo Restrictions
+
+# Basic IP blocking for common problematic countries (optional backup to PHP solution)
+# Uncomment and add specific IP ranges if needed
+# <RequireAll>
+#     Require all granted
+#     Require not ip 192.168.1
+# </RequireAll>
+
+# Block common bot countries (optional - PHP solution is more flexible)
+# SetEnvIf CF-IPCountry CN BlockCountry
+# SetEnvIf CF-IPCountry RU BlockCountry
+# Order Allow,Deny
+# Allow from all
+# Deny from env=BlockCountry
+
+# Enable compression for better page speed
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+</IfModule>
+
+# Enable browser caching for better performance
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/pdf "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType application/x-javascript "access plus 1 month"
+    ExpiresByType image/x-icon "access plus 1 year"
+</IfModule>
+
+# Force HTTPS redirect for SEO (remove if not using SSL)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# Remove www or add www (choose one - this removes www)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+    RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+</IfModule>
+
+# SEO-friendly URLs (remove .php extension)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Remove .php extension from URLs
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^([^\.]+)$ $1.php [NC,L]
+    
+    # Redirect .php URLs to clean URLs
+    RewriteCond %{THE_REQUEST} /([^.]+)\.php [NC]
+    RewriteRule ^ /%1 [NC,L,R=301]
+</IfModule>
+
+# Set proper MIME types for SEO
+<IfModule mod_mime.c>
+    AddType application/javascript .js
+    AddType text/css .css
+</IfModule>
+
+# Security headers for better SEO ranking
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options DENY
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    
+    # Add real visitor IP for geo detection behind proxies
+    Header append Vary User-Agent
+    Header append Vary Accept-Encoding
+</IfModule>
+
+# Prevent access to sensitive files
+<Files "*.log">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+<Files "database.sql">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+<Files "config.php">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+<Files ".htaccess">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Protect geo cache and config directories
+<DirectoryMatch "^.*(cache|config).*$">
+    Order Allow,Deny
+    Deny from all
+</DirectoryMatch>
+
+# Custom 404 page for better user experience
+ErrorDocument 404 /404.php
+
+# Enable file ETags for better caching
+FileETag MTime Size
+
+# Set charset for better SEO
+AddDefaultCharset UTF-8
+
+# Disable server signature for security
+ServerSignature Off
+
+# Block common malicious bots (while allowing geo detection bots)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTP_USER_AGENT} ^.*(bot|crawler|spider|scraper).*$ [NC]
+    RewriteCond %{HTTP_USER_AGENT} !^.*(googlebot|bingbot|yahoo|facebook|twitter).*$ [NC]
+    RewriteRule ^.* - [F,L]
+</IfModule>

@@ -1,0 +1,28 @@
+User-agent: *
+Allow: /
+
+# Allow important pages
+Allow: /index.php
+Allow: /portfolio.php
+Allow: /assets/
+
+# Block admin areas and sensitive files
+Disallow: /admin/
+Disallow: /config/
+Disallow: /logs/
+Disallow: /database.sql
+Disallow: /track-view.php
+Disallow: /*.log$
+
+# Block common bad bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+# Sitemap location
+Sitemap: https://yoursite.com/sitemap.xml
